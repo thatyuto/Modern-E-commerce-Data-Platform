@@ -6,6 +6,8 @@ SELECT
     sub.subject_name, 
     COUNT(e.student_id) AS attended_exams
 FROM Students s
+
+-- create all possible combinations 
 CROSS JOIN Subjects sub
 LEFT JOIN Examinations e
     ON s.student_id = e.student_id
