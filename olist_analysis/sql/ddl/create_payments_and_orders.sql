@@ -1,25 +1,32 @@
--- 1. 暴力重置：直接删掉整个房间及其内容（慎用，仅限实验期）
-DROP SCHEMA IF EXISTS olist_raw CASCADE;
+-- 创建 Schema
+CREATE SCHEMA IF NOT EXISTS olist_raw;
 
--- 2. 重新创建房间
-CREATE SCHEMA olist_raw;
-
--- 3. 重新建立带“约束”的表
-CREATE TABLE olist_raw.payments (
-    order_id TEXT NOT NULL,
-    payment_sequential INT,
-    payment_type TEXT,
-    payment_installments INT,
-    payment_value DECIMAL(10, 2) CHECK (payment_value >= 0)
-);
-
+-- 创建 orders 表
 CREATE TABLE olist_raw.orders (
-    order_id TEXT PRIMARY KEY,
-    customer_id TEXT NOT NULL,
-    order_status TEXT,
-    order_purchase_timestamp TIMESTAMP,
+    order_id VARCHAR(50) PRIMARY KEY NOT NULL,
+    customer_id VARCHAR(50) NOT NULL,
+    order_status VARCHAR(20) NOT NULL,
+    order_purchase_timestamp TIMESTAMP NOT NULL,
     order_approved_at TIMESTAMP,
     order_delivered_carrier_date TIMESTAMP,
     order_delivered_customer_date TIMESTAMP,
-    order_estimated_delivery_date TIMESTAMP
+    order_estimated_delivery_date TIMESTAMP,
+    
+    CONSTRAINT chk_order_status 
+        CHECK (order_status IN (
+            'approved', 'canceled', 'delivered', 
+            'invoiced', 'processing', 'shipped'
+        ))
+);
+
+-- 创建 order_payments 表
+CREATE TABLE olist_raw.order_payments (
+    order_id VARCHAR(50) NOT NULL,
+    payment_sequential INT NOT NULL,
+    payment_type VARCHAR(20) NOT NULL,
+    payment_installments INT NOT NULL,
+    payment_value FLOAT NOT NULL,
+    
+    PRIMARY KEY (order_id, payment_sequential),
+    CONSTRAINT chk_payment_value CHECK (payment_value > 0)
 );
