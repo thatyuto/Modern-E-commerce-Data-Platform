@@ -1,0 +1,131 @@
+每日任务产出・存放位置规范（极简版，直接照做）
+
+一、olist 核心项目（你每天 90% 内容放这）
+olist/sql/ddl/
+建表语句、SCHEMA、主键、外键、CHECK 约束
+字段注释、索引、一键建库 SQL
+
+olist/sql/quality/
+NULL 统计、重复主键检查
+异常金额、非法状态、时间逻辑校验
+数据质量探查脚本
+
+olist/sql/analysis/
+分组统计、支付方式分析、订单状态分析
+TOP 商品 / 商家、复购率、RFM
+物流时效、环比、移动平均、用户分层
+
+olist/sql/mart/
+订单宽表、用户宽表、商品宽表、商家宽表
+多表关联大宽表、指标汇总表
+
+olist/raw_data/
+原始 CSV、样例数据（不上传 GitHub）
+
+olist/notes/
+每日学习笔记、踩坑记录
+实验总结、脏数据处理 SOP
+业务简报草稿
+
+olist/scripts/
+
+一键执行 SQL 脚本
+批量导入、初始化工具脚本
+
+
+二、ETL / Python 相关
+etl/pg_load/
+PostgreSQL 数据导入 Python 脚本
+CSV 读取、清洗、入库
+
+etl/quality/
+Python 自动化数据质量检查
+缺失值、异常值、重复值检测
+
+etl/features/
+宽表构建、RFM 计算、用户分群
+
+etl/utils/
+数据库连接工具 db.py
+通用函数、配置、日志工具
+
+三、后续阶段对应位置
+dbt/
+dbt 项目、模型、tests、sources、文档
+
+spark/
+PySpark 脚本、Delta Lake、调优、流处理
+
+infra/docker/
+Dockerfile、构建配置
+
+infra/airflow/
+DAG 调度脚本
+
+infra/terraform/
+GCP 资源编排代码
+
+四、文档（面试用）
+docs/data_dictionary/
+字段说明、数据字典、表结构文档
+
+docs/reports/
+业务简报、指标报告、复盘总结
+
+docs/architecture/
+数仓架构图、DAG 血缘图、分层图
+
+五、刷题
+leetcode/easy/
+leetcode/medium/
+leetcode/hard/
+每题 SQL + 题解笔记
+
+
+Modern-E-commerce-Data-Platform/
+├── README.md
+├── .gitignore
+
+# ======================
+# 核心项目（不拆、不动、全部分层到位）
+# ======================
+├── olist/
+│   ├── raw_data/          # 原始CSV（gitignore 不上传）
+│   ├── sql/
+│   │   ├── ddl/           # 建表、主键、约束、索引
+│   │   ├── quality/       # 数据探查、NULL、异常、重复
+│   │   ├── analysis/      # 业务指标、TOP、复购、RFM、时效
+│   │   └── mart/          # 订单宽表、用户宽表、商品宽表
+│   ├── notes/             # 实验笔记、SOP、总结、简报
+│   └── scripts/           # 一键建库、一键导入、自动化脚本
+
+# ======================
+# 工程化模块（你未来4个月全部能用）
+# ======================
+├── etl/
+│   ├── pg_load/           # PostgreSQL 导入脚本
+│   ├── quality/           # Python 数据质量检查
+│   ├── features/          # 宽表构建、RFM、用户分群
+│   └── utils/             # 数据库连接、通用工具
+
+├── dbt/                   # dbt 项目目录
+├── spark/                 # PySpark + Delta Lake 脚本
+├── infra/                 # 部署 & 调度
+│   ├── docker/
+│   ├── airflow/
+│   └── terraform/
+
+├── docs/                  # 面试用文档
+│   ├── data_dictionary/   # 数据字典
+│   ├── reports/           # 业务简报
+│   └── architecture/      # 架构图、血缘图
+
+└── leetcode/              # 刷题
+    ├── easy/
+    ├── medium/
+    └── hard/
+
+
+
+
+
