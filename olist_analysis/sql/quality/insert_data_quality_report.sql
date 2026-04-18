@@ -1,3 +1,15 @@
+-- create data_quality_report table
+
+CREATE table IF NOT EXISTS olist_raw.data_quality_report (
+	table_name TEXT,
+	column_name TEXT,
+	total_rows BIGINT,
+	null_count BIGINT,
+	null_rate DECIMAL(10,2),
+	analyse_time TIMESTAMP DEFAULT NOW()
+);
+
+
 -- insert data into data_quality_report table
 
 -- customers table
