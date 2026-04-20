@@ -1,0 +1,11 @@
+1. 创建清洗模式，用于存储清洗后的数据
+2. 创建清洗日志表，用于记录执行过程
+3. 进入建表，清洗，导入阶段
+	3.1 customers表
+	    customer_id是客户唯一id，打算设置为主键，因此需要去重
+	    customer_zip_code_prefix，邮编，清洗不必要的空格
+	    customer_city，客户城市（首字母大写标准化），如la->La
+    	    customer_state，客户所在州（2位缩写，大写标准化）sp->SP
+            create_time，ETL清洗时间
+            etl_version VARCHAR(20) DEFAULT 'V1.0'  -- ETL版本（便于追溯）
+        3.2 
