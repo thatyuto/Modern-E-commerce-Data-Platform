@@ -8,4 +8,12 @@
     	    customer_state，客户所在州（2位缩写，大写标准化）sp->SP
             create_time，ETL清洗时间
             etl_version VARCHAR(20) DEFAULT 'V1.0'  -- ETL版本（便于追溯）
-        3.2 
+        3.2 orders表
+	    order_id，主键，去空
+	    customer_id 外键
+	    order_purchase_timestamp 时间，要检查时间有无异常
+	    order_approved_at TIMESTAMP NULL,  -- 订单审核时间（允许空，未审核订单）
+            order_delivered_carrier_date TIMESTAMP NULL,  -- 物流揽件时间（允许空）
+    	    order_delivered_customer_date TIMESTAMP NULL,  -- 客户签收时间（允许空）
+      	    order_estimated_delivery_date TIMESTAMP NULL,  -- 预计送达时间（允许空）
+	    
