@@ -209,3 +209,6 @@ __marimo__/
 *.CSV
 raw_data/
 data/
+
+# 忽略环境变量文件
+.env
