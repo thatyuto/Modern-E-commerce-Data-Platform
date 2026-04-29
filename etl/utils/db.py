@@ -54,6 +54,7 @@ class DBManager:
             print(f"❌ 引擎创建失败: {e}")
             sys.exit(1)
 
+    # 7. 核心功能方法：执行 SQL 并返回 DataFrame
     def get_df(self, sql: str):
         """
         核心功能方法：传入 SQL 指令，直接返回 Pandas 的 DataFrame 对象。
@@ -68,6 +69,34 @@ class DBManager:
         except Exception as e:
             print(f"❌ 查询失败: {e}")
             return None
+    
+    # 入库函数，全量/增量  
+    def load_to_postgres(self, df: pd.DataFrame, table_name: str, schema: str, if_exists: str = "append"):
+        """
+        设计的意义：将清洗后的 DataFrame 高效写入 PostgreSQL。
+    
+        参数:
+         table_name (str): 目标表名。
+        if_exists (str): 
+            'fail': 如果表存在，什么都不做。
+            'replace': 全量覆盖（删除旧表，创建新表）。
+            'append': 增量写入（在旧数据后追加）。
+        """
+        try: 
+            df.to_sql(
+                name=table_name,
+                con=self.engine,
+                schema=schema,
+                if_exists=if_exists,
+                index=False, # 不写入 DataFrame 的索引列
+                method='multi' # 批量插入，提升性能
+                chunksize= 5000 # 每次插入 5000 行，适合大数据量的写入
+            )
+            print(f"✅ 数据已成功以[{if_exists}]模式写入表：{schema}.{table_name}")
+        except Exception as e:
+            print(f"❌ 数据写入失败: {e}")
+            sys.exit(1)
+
 
 # 测试代码块：只有当你直接运行 python db.py 时才会执行
 if __name__ == "__main__":
