@@ -29,3 +29,4 @@ if __name__ == "__main__":
     test_file = "olist_analysis/raw_data/olist_customers_dataset.csv" 
     df = load_csv_safely(test_file)
     print(df.head())
+
