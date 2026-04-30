@@ -23,6 +23,7 @@ from pathlib import Path
 from etl.utils.db import DBManager
 from etl.utils.file_handler import load_csv_safely
 from etl.utils.data_cleaner import validate_data, perform_basic_cleaning
+from etl.utils.data_quality import check_data_quality, log_issue_date   
 
 # --- 最正规的路径处理：动态锁定项目根目录 ---
 # __file__ 是当前文件路径，.parent.parent.parent 向上推三级到达 MODERN-E-COMMERCE-DATA-PLATFORM
@@ -41,6 +42,10 @@ def run_order_load_pipeline():
     # 使用 BASE_DIR 拼接，无论你在哪里启动脚本，路径永远准确
     csv_path = BASE_DIR / "olist_analysis" / "raw_data" / "olist_orders_dataset.csv"
     target_table = "fact_orders_wide"
+    # 配置问题数据存放路径
+    log_path = BASE_DIR / "olist_analysis" / "notes" / "issue_orders.csv"
+
+    
 
     # 定义期望的列: 检验用
     expected_cols = ['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp']
@@ -60,6 +65,22 @@ def run_order_load_pipeline():
     if not validate_data(df, expected_cols, critical_cols):
         print("❌ 数据校验失败，流水线终止")
         return
+
+    # 质量检测
+    print("🔍 检测数据质量")
+    quality_report = check_data_quality(df, "order_id") 
+
+    # 打印质量报告表格（简化版）
+    print("-" * 30)
+    print(f"重复行数: {quality_report['duplicate_rows']}")
+    print(f"重复主键数: {quality_report['duplicate_primary_keys']}")
+    print("缺失值统计:", quality_report['missing_values'])
+    print("-" * 30)
+
+    # 3. 记录问题清单
+    log_issue_data(df, primary_key='order_id', output_path=str(log_path))
+
+    print("✅ 数据校验成功")
     
     # 3. 转换: 基础清洗
     print("🔍 开始清洗数据, 去空格、统一大小写")
@@ -73,6 +94,5 @@ def run_order_load_pipeline():
                         schema="python_etl", 
                         if_exists="replace") # 全量覆盖写入
     
-
 if __name__ == "__main__":
     run_order_load_pipeline()
