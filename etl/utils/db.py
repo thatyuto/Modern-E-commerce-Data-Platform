@@ -82,6 +82,12 @@ class DBManager:
             'replace': 全量覆盖（删除旧表，创建新表）。
             'append': 增量写入（在旧数据后追加）。
         """
+
+        """
+        .to_sql(): 调用该方法后，Pandas 会自动处理数据类型映射，
+        并通过 SQLAlchemy引擎将数据批量插入到指定的数据库表中。
+        method='multi' 和 chunksize=5000 的组合可以显著提升大数据量的写入性能。
+        """
         try: 
             df.to_sql(
                 name=table_name,
@@ -89,7 +95,7 @@ class DBManager:
                 schema=schema,
                 if_exists=if_exists,
                 index=False, # 不写入 DataFrame 的索引列
-                method='multi' # 批量插入，提升性能
+                method='multi', # 批量插入，提升性能
                 chunksize= 5000 # 每次插入 5000 行，适合大数据量的写入
             )
             print(f"✅ 数据已成功以[{if_exists}]模式写入表：{schema}.{table_name}")
