@@ -18,4 +18,15 @@ def check_data_quality(df: pd.DataFrame, primary_key: str) -> dict:
 
     return report
 
+def log_issue_date(df: pd.DataFrame, primary_key: str, output_file: str):
+    """
+    设计的意义：记录问题数据清单，将其导出为 CSV 方便后续人工排查。
+    """
+    # 提取重复主键的数据作为问题数据示例
+    issue_df = df[df.duplicated(subset=[primary_key], keep=False)] # keep=False 标记所有重复行为 True
 
+    if not issue_df.empty:
+        issue_df.to_csv(output_file, index=False) # 将问题数据导出为 CSV 文件，index=False 表示不导出行索引
+        print(f"⚠️ 已记录问题数据到 {output_file}")
+    else:
+        print("✅ 没有发现重复主键，未生成问题数据文件")
