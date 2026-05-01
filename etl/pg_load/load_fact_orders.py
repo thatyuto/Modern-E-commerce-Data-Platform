@@ -23,7 +23,8 @@ from pathlib import Path
 from etl.utils.db import DBManager
 from etl.utils.file_handler import load_csv_safely
 from etl.utils.data_cleaner import validate_data, perform_basic_cleaning
-from etl.utils.data_quality import check_data_quality, log_issue_date   
+from etl.utils.data_quality import check_data_quality, log_issue_date
+from etl.utils.data_quality import detect_outliers_3sigma, validate_time_logic   
 
 # --- 最正规的路径处理：动态锁定项目根目录 ---
 # __file__ 是当前文件路径，.parent.parent.parent 向上推三级到达 MODERN-E-COMMERCE-DATA-PLATFORM
@@ -81,18 +82,35 @@ def run_order_load_pipeline():
     log_issue_data(df, primary_key='order_id', output_path=str(log_path))
 
     print("✅ 数据校验成功")
+
+    # 利用3sigma函数检测异常值：金额，运费，增加一列is_normal标记是否异常
+    df['is_normal'] = 0
+    for col in ['payment_value','payment_sequential']:
+        outlier_mask = detect_outliers_3sigma(df, col)
+        df.loc[outlier_mask, 'is_normal'] = 1 # 标记异常值，学习如何用.loc进行定位
+        if outlier_mask.any():
+            print(f"⚠️ 在 [{col}] 中检测到 {outlier_mask.sum()} 条数值异常数据")
+
+    # 时间逻辑合法性校验, 送达时间不能早于下单时间
+    time_error_mask = validate_time_logic(df, 'order_purchase_timestamp', 'order_delivered_customer_date')
+    if time_error_mask.any():
+        print(f"⚠️ 检测到 {time_error_mask.sum()} 条时间逻辑错误数据")
+        # 记录时间逻辑错误数据
+        log_issue_date(df[time_error_mask], primary_key='order_id', output_file=str(log_path.parent / "issue_orders_time_logic.csv"))
     
-    # 3. 转换: 基础清洗
+    # 4. 转换: 基础清洗
     print("🔍 开始清洗数据, 去空格、统一大小写")
     df_clean = perform_basic_cleaning(df)
 
-    # 4. 加载: 写入数据库
+    # 5. 加载: 写入数据库
     print(f"🔍 开始加载数据: 写入 PostgreSQL 表 {target_table}")
     db = DBManager() # 实例化数据库管理类
     db.load_to_postgres(df_clean, 
                         table_name=target_table, 
                         schema="python_etl", 
                         if_exists="replace") # 全量覆盖写入
+    
+
     
 if __name__ == "__main__":
     run_order_load_pipeline()

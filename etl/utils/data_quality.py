@@ -73,4 +73,5 @@ def validate_time_logic(df: pd.DataFrame, start_col: str, end_col: str) -> pd.Se
     end_time = pd.to_datetime(df[end_col], errors='coerce') # 将结束时间列转换为 datetime 类型
 
     # 验证时间逻辑关系：起始时间必须早于结束时间
-    return start_time < end_time # 返回一个布尔 Series，标记逻辑正确的行为 True
+    return start_time < end_time # 返回一个布尔 Series，标记逻辑正确的行为True
+    
