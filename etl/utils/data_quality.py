@@ -19,7 +19,7 @@ def check_data_quality(df: pd.DataFrame, primary_key: str) -> dict:
 
     return report
 
-def log_issue_date(df: pd.DataFrame, primary_key: str, output_file: str):
+def log_issue_data(df: pd.DataFrame, primary_key: str, output_file: str):
     """
     设计的意义：记录问题数据清单，将其导出为 CSV 方便后续人工排查。
     """
@@ -73,5 +73,5 @@ def validate_time_logic(df: pd.DataFrame, start_col: str, end_col: str) -> pd.Se
     end_time = pd.to_datetime(df[end_col], errors='coerce') # 将结束时间列转换为 datetime 类型
 
     # 验证时间逻辑关系：起始时间必须早于结束时间
-    return start_time < end_time # 返回一个布尔 Series，标记逻辑正确的行为True
+    return start_time > end_time # 返回一个布尔 Series，标记逻辑错误的行为 = True
     

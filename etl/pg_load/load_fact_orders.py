@@ -23,7 +23,7 @@ from pathlib import Path
 from etl.utils.db import DBManager
 from etl.utils.file_handler import load_csv_safely
 from etl.utils.data_cleaner import validate_data, perform_basic_cleaning
-from etl.utils.data_quality import check_data_quality, log_issue_date
+from etl.utils.data_quality import check_data_quality, log_issue_data
 from etl.utils.data_quality import detect_outliers_3sigma, validate_time_logic   
 
 # --- 最正规的路径处理：动态锁定项目根目录 ---
@@ -79,7 +79,7 @@ def run_order_load_pipeline():
     print("-" * 30)
 
     # 3. 记录问题清单
-    log_issue_data(df, primary_key='order_id', output_path=str(log_path))
+    log_issue_data(df, primary_key='order_id', output_file=str(log_path))
 
     print("✅ 数据校验成功")
 
@@ -96,7 +96,7 @@ def run_order_load_pipeline():
     if time_error_mask.any():
         print(f"⚠️ 检测到 {time_error_mask.sum()} 条时间逻辑错误数据")
         # 记录时间逻辑错误数据
-        log_issue_date(df[time_error_mask], primary_key='order_id', output_file=str(log_path.parent / "issue_orders_time_logic.csv"))
+        log_issue_data(df[time_error_mask], primary_key='order_id', output_file=str(log_path.parent / "issue_orders_time_logic.csv"))
     
     # 4. 转换: 基础清洗
     print("🔍 开始清洗数据, 去空格、统一大小写")
