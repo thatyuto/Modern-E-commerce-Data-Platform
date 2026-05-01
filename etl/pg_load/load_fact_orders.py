@@ -46,6 +46,7 @@ def run_order_load_pipeline():
     # 配置问题数据存放路径
     log_path = BASE_DIR / "olist_analysis" / "notes" / "issue_orders.csv"
 
+
     
 
     # 定义期望的列: 检验用
@@ -110,7 +111,8 @@ def run_order_load_pipeline():
                         schema="python_etl", 
                         if_exists="replace") # 全量覆盖写入
     
-
     
 if __name__ == "__main__":
     run_order_load_pipeline()
+
+
