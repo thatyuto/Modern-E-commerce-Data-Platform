@@ -43,6 +43,7 @@ def run_order_load_pipeline():
     # 配置区
     # 使用 BASE_DIR 拼接，无论你在哪里启动脚本，路径永远准确
     csv_path = BASE_DIR / "olist_analysis" / "raw_data" / "olist_orders_dataset.csv"
+    
     target_table = "fact_orders_wide"
     # 配置问题数据存放路径
     log_path = BASE_DIR / "olist_analysis" / "notes" / "issue_orders.csv"
