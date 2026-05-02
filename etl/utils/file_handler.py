@@ -9,7 +9,7 @@ def load_csv_safely(file_path : str) -> pd.DataFrame:
         try:
             df = pd.read_csv(file_path, encoding=encoding)
             print(f"✅ 成功加载 CSV 文件 (所用编码: {encoding})")
-            return df
+            return df # 成功加载后立即返回 DataFrame 对象
         except UnicodeDecodeError:
             print(f"⚠️ 失败: 无法使用 {encoding} 解码文件，尝试下一个编码...")
         except Exception as e:
