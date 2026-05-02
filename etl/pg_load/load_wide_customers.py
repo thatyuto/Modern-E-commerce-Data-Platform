@@ -1,6 +1,7 @@
 from etl.core.engine import run_pipeline
 from etl.utils.file_handler import load_csv_safely
 from pathlib import Path # 用于动态路径处理
+import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -37,7 +38,7 @@ def transform(data):
         df_geo_agg,
         left_on = "customer_zip_code_prefix",
         right_on = "geolocation_zip_code_prefix",
-        how = "left" # 保留所有用户，即使没有匹配的地理信息
+        how = "left" # s保留所有用户，即使没有匹配的地理信息
     )
 
     # 填充缺失值与清理

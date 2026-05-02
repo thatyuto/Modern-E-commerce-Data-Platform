@@ -18,6 +18,7 @@
 import os
 from pathlib import Path
 
+
 # --- 最正规的导入方式：绝对导入 ---
 # 注意：运行此脚本需在项目根目录下执行 python -m etl.pg_load.load_fact_orders
 from etl.utils.db import DBManager

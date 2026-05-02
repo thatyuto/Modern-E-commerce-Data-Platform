@@ -30,4 +30,4 @@ def run_pipeline(extract_func, transform_func, target_table, schema="python_etl"
     # 将清洗后的数据加载到 PostgreSQL 数据库中
     db_manager.load_to_postgres(cleaned_df, target_table, schema, if_exists="replace")
     
-    print("✅ 数据加载完成: {target_table} 入库成功，共 {len(df)} 行")
+    print(f"✅ 数据加载完成: {target_table} 入库成功，共 {len(df)} 行")
