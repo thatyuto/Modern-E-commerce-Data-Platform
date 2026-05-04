@@ -20,7 +20,7 @@ from etl.utils.data_quality import (
     validate_time_logic
 )
 
-# --- 1. 配置与日志中心 (image_b5dc37.png: 配置外置，避免硬编码) ---
+# --- 1. 配置与日志中心 ( 配置外置，避免硬编码) ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
@@ -96,25 +96,22 @@ def transform(df: pd.DataFrame) -> pd.DataFrame:
     设计的意义: 
     作为 transform 的总入口，通过调用子函数实现流水线作业。
     """
-    # 0-60min: 质量自检报告
+    
     quality_report = check_data_quality(df, "order_id")
     logger.info(f"Initial Quality Check - Duplicates: {quality_report['duplicate_rows']}")
 
-    # 60-120min: 质量审计与标记
     df = apply_quality_auditing(df)
 
-    # 120-180min: 基础清洗
     logger.info("Performing basic string cleaning.")
     df = perform_basic_cleaning(df)
 
-    # 180-240min: 缺失值填充
     df = df.fillna({'payment_value': 0, 'order_status': 'delivered'})
     
     logger.info(f"Transformation workflow finished. Total records: {len(df)}")
     return df
 
 if __name__ == "__main__":
-    # 240-300min: 全脚本跑通，形成可复用 ETL 包
+    
     try:
         run_pipeline(extract, transform, "fact_orders_wide_2", schema="python_etl")
         logger.info("Pipeline execution successful.")
