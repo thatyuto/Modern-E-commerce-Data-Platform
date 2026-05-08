@@ -1,0 +1,13 @@
+sources:
+  - name: olist_raw
+    database: project-2c55b1ac-af96-4683-a80
+    schema: olist_raw
+    tables:
+      - name: olist_orders_dataset               # 原始表名 1
+      - name: olist_order_items_dataset          # 原始表名 2
+      - name: olist_customers_dataset            # 原始表名 3
+      - name: olist_products_dataset             # 原始表名 4
+      - name: olist_order_payments_dataset       # 原始表名 5
+      - name: olist_geolocation_dataset        # 原始表名 6
+      - name: olist_sellers_dataset              # 原始表名 7
+      - name: product_category_name_translation # 原始表名 8
