@@ -55,3 +55,12 @@ models:
       - name: order_item_id
         tests:
           - not_null 
+
+  # products 表     
+  - name: stg_products
+    description: "详细记录每个产品的信息"
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique
