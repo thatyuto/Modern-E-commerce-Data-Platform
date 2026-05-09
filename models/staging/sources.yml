@@ -36,4 +36,11 @@ models:
         description: "客户唯一标识(一个 unique_id 可能对应多个 customer_id)"
         tests:
           - not_null
-          
+
+  # geolocation 表     
+  - name: stg_geolocation
+    description: "地理位置采样数据，包含重复的邮编前缀，建议下游进行聚合处理。"
+    columns:
+      - name: geolocation_zip_code_prefix
+        tests:
+          - not_null  -- 只要保证有邮编就行，不要求唯一
