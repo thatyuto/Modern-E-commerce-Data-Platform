@@ -44,3 +44,14 @@ models:
       - name: geolocation_zip_code_prefix
         tests:
           - not_null  -- 只要保证有邮编就行，不要求唯一
+  
+  # items 表     
+  - name: stg_order_items
+    description: "该表格详细记录了客户订单中的各项单品信息"
+    columns:
+      - name: order_id
+        tests:
+          - not_null 
+      - name: order_item_id
+        tests:
+          - not_null 
