@@ -64,3 +64,13 @@ models:
         tests:
           - not_null
           - unique
+
+  # sellers 表     
+  - name: stg_sellers
+    description: "详细记录每个卖家的信息"
+    columns:
+      - name: seller_id
+        tests:
+          - not_null
+          - unique
+
