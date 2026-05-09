@@ -11,3 +11,15 @@ sources:
       - name: olist_geolocation_dataset        # 原始表名 6
       - name: olist_sellers_dataset              # 原始表名 7
       - name: product_category_name_translation # 原始表名 8
+
+# test
+models:
+  - name: stg_orders
+    description: "Testing orders table"
+    columns:
+      - name: order_id
+        description: "the primary key of this orders table"
+        tests:
+          - unique
+          - not_null
+          
