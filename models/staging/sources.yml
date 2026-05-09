@@ -14,6 +14,7 @@ sources:
 
 # test
 models:
+  # orders 表
   - name: stg_orders
     description: "Testing orders table"
     columns:
@@ -21,5 +22,18 @@ models:
         description: "the primary key of this orders table"
         tests:
           - unique
+          - not_null
+
+  # customers 表
+  - name: stg_customers
+    description: "巴西电商客户基础信息表"
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_unique_id
+        description: "客户唯一标识(一个 unique_id 可能对应多个 customer_id)"
+        tests:
           - not_null
           
