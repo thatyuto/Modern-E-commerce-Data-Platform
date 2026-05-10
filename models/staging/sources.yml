@@ -74,3 +74,15 @@ models:
           - not_null
           - unique
 
+  # translation 表     
+  - name: stg_translation
+    description: "详细记录每个产品原本的名字以及它们的英文译名"
+    columns:
+      - name: string_field_0  # 原名不能为空，且不能重复
+        tests:
+          - not_null
+          - unique
+      - name: string_field_1  # 译名不能为空，且不能重复
+        tests:
+          - not_null
+          - unique
