@@ -7,3 +7,4 @@ select
     payment_installments,
     payment_value
 from {{ source('olist_raw','olist_order_payments_dataset')}}
+where payment_value > 0
