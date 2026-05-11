@@ -24,6 +24,15 @@ models:
           - unique
           - not_null
 
+      - name: customer_id
+        description: "the forieginer key"
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id    
+
   # customers 表
   - name: stg_customers
     description: "巴西电商客户基础信息表"
