@@ -53,6 +53,9 @@ select
     r_score,
     f_score,
     m_score,
+    r_level,
+    f_level,
+    m_level,
     case 
         when r_level = '高' and f_level = '高' and m_level = '高' then '重要价值客户'
         when r_level = '高' and f_level = '高' and m_level = '低' then '重要保持客户'
