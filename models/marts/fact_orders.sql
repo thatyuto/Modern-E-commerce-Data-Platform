@@ -4,9 +4,8 @@ with orders as (
 -- solve fan out problem
 order_payments as (
     select order_id,
-           sum(payment_value) as total_payment_value
-           from {{ref('stg_payments')}}
-           group by 1
+           total_payment_value
+    from {{ref('dim_payments')}}
 ),
 -- preprocess the amount of product
 order_items_summary as (
