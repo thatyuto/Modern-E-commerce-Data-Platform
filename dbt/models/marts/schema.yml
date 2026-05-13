@@ -53,6 +53,10 @@ models:
         description: "PK. 商品唯一标识。"
       - name: weight_class
         description: "{{ doc('olist_weight_class_definition') }}"
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['light weight', 'middle weight', 'heavy weight']
 
   # 5. 支付事实表 
   - name: dim_payments
@@ -60,5 +64,8 @@ models:
     columns:
       - name: total_payment_value
         description: "该订单的总实付金额。应等于所有支付流水之和。"
+  
+  # 6. 地理信息表
+
 
 
