@@ -1,3 +1,4 @@
+version: 2
 
 models:
   # 1. 客户维度表 
@@ -11,6 +12,12 @@ models:
           - not_null
       - name: customer_segment
         description: "{{ doc('olist_rfm_logic') }}"
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['重要价值客户', '重要发展客户', '一般客户', '重要保持客户', '重要挽留客户']
+              config:
+                severity: warn
 
   # 2. 订单维度表
   - name: dim_orders
@@ -32,7 +39,7 @@ models:
         description: "SK. 基于 order_id 与 order_item_id 生成的代理键。"
         tests:
           - not_null
-          
+
       - name: freight_ratio
         description: "口径定义：运费占订单项总价值的比率 (freight / total_value)。用于监控高运费异常商品。"
       - name: total_item_value
@@ -53,3 +60,5 @@ models:
     columns:
       - name: total_payment_value
         description: "该订单的总实付金额。应等于所有支付流水之和。"
+
+
