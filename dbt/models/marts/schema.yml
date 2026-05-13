@@ -1,0 +1,55 @@
+
+models:
+  # 1. 客户维度表 
+  - name: dim_customers
+    description: "客户价值分析维度表，包含基于 RFM 模型的分群结果。"
+    columns:
+      - name: customer_unique_id
+        description: "PK. 客户全局唯一标识。"
+        tests:
+          - unique
+          - not_null
+      - name: customer_segment
+        description: "{{ doc('olist_rfm_logic') }}"
+
+  # 2. 订单维度表
+  - name: dim_orders
+    description: "订单基础信息表，标准化了所有关键生命周期时间戳。"
+    columns:
+      - name: order_id
+        description: "PK. 订单唯一识别码。"
+        tests: [unique, not_null]
+      - name: order_status
+        description: "{{ doc('olist_order_status_definition') }}"
+      - name: purchased_at
+        description: "下单时间 (UTC)。命名规范：统一使用 _at 结尾表示时间戳。"
+
+  # 3. 订单项事实表 
+  - name: fact_order_items
+    description: "最细粒度的业务事实表，记录单笔商品的交易及物流分摊情况。"
+    columns:
+      - name: order_item_key
+        description: "SK. 基于 order_id 与 order_item_id 生成的代理键。"
+        tests:
+          - not_null
+          
+      - name: freight_ratio
+        description: "口径定义：运费占订单项总价值的比率 (freight / total_value)。用于监控高运费异常商品。"
+      - name: total_item_value
+        description: "订单项总价（单价 + 运费）。"
+
+  # 4. 商品维度表 
+  - name: dim_products
+    description: "商品属性表，整合了类别翻译及逻辑分类。"
+    columns:
+      - name: product_id
+        description: "PK. 商品唯一标识。"
+      - name: weight_class
+        description: "{{ doc('olist_weight_class_definition') }}"
+
+  # 5. 支付事实表 
+  - name: dim_payments
+    description: "订单支付维度表，记录多种支付方式的并行交易情况。"
+    columns:
+      - name: total_payment_value
+        description: "该订单的总实付金额。应等于所有支付流水之和。"
