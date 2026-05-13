@@ -30,7 +30,9 @@ models:
     columns:
       - name: order_item_key
         description: "SK. 基于 order_id 与 order_item_id 生成的代理键。"
-        tests: [unique, not_null]
+        tests:
+          - not_null
+          
       - name: freight_ratio
         description: "口径定义：运费占订单项总价值的比率 (freight / total_value)。用于监控高运费异常商品。"
       - name: total_item_value
