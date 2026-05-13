@@ -66,6 +66,12 @@ models:
         description: "该订单的总实付金额。应等于所有支付流水之和。"
   
   # 6. 地理信息表
+  - name: dim_geo
+    description: "涉及详细地理信息的表"
+    columns:
+      - name: geolocation_zip_code_prefix
+        tests:
+          - not_null
 
 
 
