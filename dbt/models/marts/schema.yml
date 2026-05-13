@@ -73,5 +73,13 @@ models:
         tests:
           - not_null
 
+  # 7. 卖家表
+  - name: dim_sellers
+    description: "涉及卖家信息的表，包括id，城市，邮编"
+    columns:
+      - name: seller_id
+        tests:
+          - not_null
+          
 
 
