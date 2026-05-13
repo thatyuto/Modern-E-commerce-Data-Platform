@@ -44,6 +44,21 @@ models:
         description: "口径定义：运费占订单项总价值的比率 (freight / total_value)。用于监控高运费异常商品。"
       - name: total_item_value
         description: "订单项总价（单价 + 运费）。"
+      - name: product_id
+        tests:
+          - relationships:  # 参照完整性测试
+              arguments:
+                to: ref('dim_products')
+                field: product_id
+                severity: warn # 发现没有对应维度的商品，发出警告
+      - name: seller_id
+        tests:
+          - relationships:   # 参照完整性测试
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id
+                severity: warn # 发现没有对应维度的商品，发出警告
+
 
   # 4. 商品维度表 
   - name: dim_products
