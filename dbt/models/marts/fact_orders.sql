@@ -37,7 +37,9 @@ final as (
         o.approved_at,
         o.delivered_to_customer_at,
 
-       
+        -- 【关键设置】手动构造 updated_at
+        -- 逻辑：如果订单已交付，以交付时间为准；否则以下单时间为准
+        coalesce(o.delivered_to_customer_at, o.purchased_at) as updated_at,
 
         coalesce(p.total_payment_value, 0) as total_payment_value,
         coalesce(i.total_item_price, 0) as total_item_price,
