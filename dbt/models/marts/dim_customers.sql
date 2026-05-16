@@ -1,3 +1,12 @@
+-- Based on SCD Type1 strategy
+{{
+    config(
+        materialized='incremental',
+        unique_key='customer_unique_id',
+        incremental_strategy='merge'
+    )
+}}
+
 with customer_stats as (
     select
         customer_unique_id,
@@ -8,6 +17,15 @@ with customer_stats as (
     left join {{ref('stg_customers')}} c
     on o.customer_id = c.customer_id
     group by 1
+),
+active_customers as (
+    select distinct c.customer_unique_id,
+    from {{ ref('fact_orders') }} o
+    left join {{ ref('stg_customers') }} c on o.customer_id = c.customer_id
+    {% if is_incremental() %}
+      -- 如果是增量运行，只看过去 7 天更新过的订单
+      where o.updated_at >= (select timestamp_sub(max(updated_at), interval 7 day) from {{ this }})
+    {% endif %}    
 ),
 rfm_metrics as (
     select *,
@@ -56,6 +74,9 @@ select
     r_level,
     f_level,
     m_level,
+    
+    -- 新增timestamp字段: updated_at，方便后续对于时间过滤
+    current_timestamp() as updated_at,
     case 
         when r_level = '高' and f_level = '高' and m_level = '高' then '重要价值客户'
         when r_level = '高' and f_level = '高' and m_level = '低' then '重要保持客户'
@@ -64,3 +85,9 @@ select
         else '一般客户'
     end as customer_segment
 from final_segments
+
+
+{% if is_incremental() %}
+  -- 步骤 2：过滤！只把这批活跃用户的最新 RFM 结果吐出来，去 merge 覆盖目标表
+  where customer_unique_id in (select customer_unique_id from active_customers)
+{% endif %}
