@@ -1,4 +1,4 @@
-user:
+default:
   outputs:
     default:
       keyfile_json:
