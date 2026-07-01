@@ -1,0 +1,16 @@
+=== 🚀 阶段四：增量挂载的【工程化全链路总车间】(Month 4 Expansion) ===
+└── 📂 month04_engineering_pipeline/ 
+    ├── 📄 Month4_Blueprint.md      # 战役大纲：Day 1 到 Day 28 全量通关航海图
+    │
+    ├── 📂 week13_docker_modular/   # 📦 【当前 Day 2 战线】Docker 容器化与 Olist ETL 封装
+    │   ├── 📂 labs/                # Day 1 - Day 7 渐进式实验车间 (Dockerfile, .dockerignore)
+    │   └── 📂 src/                 # 核心：从你左侧 etl/spark 中抽离、解耦出的模块化函数
+    │
+    ├── 📂 week14_airflow_dag/      # 🛰️ 【下周战线】Airflow 分布式任务时空调度编排
+    │   └── 📂 dags/                # 编排图纸：指挥上面 week13 的 Docker 镜像自动定时跑批
+    │
+    ├── 📂 week15_terraform_iac/    # 🏗️ 【第三周战线】Terraform 基础设施即代码凌空砸出云端集群
+    │   └── 📄 main.tf              # 云端 Lakehouse 算力资源一键声明
+    │
+    └── 📂 week16_cicd_automation/  # 🚀 【收官战线】GitHub Actions 自动化 CI/CD 高压线流水线
+        └── 📂 workflows/           # 终局：代码一推，全自动编译测试，无缝发布生产
