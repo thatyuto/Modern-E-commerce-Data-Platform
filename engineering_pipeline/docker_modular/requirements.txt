@@ -1,0 +1,3 @@
+# requirements.txt
+# 现阶段我们先声明一个极简的工具库，为后续的 Day 4/5 模块化 ETL 预留底座
+requests==2.31.0
