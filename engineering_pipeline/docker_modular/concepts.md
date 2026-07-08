@@ -207,6 +207,57 @@ docker build 的核心作用：根据 Dockerfile + 上下文（build context）�
 3. 把压缩包传给后台 dockerd；
 4. Dockerfile 里的 COPY/ADD 只能从这份打包文件里拿文件。
 
+### .dockerignore作用
+
+执行 docker build 时，Docker 会把上下文目录全部打包发给 dockerd。** .dockerignore **用来过滤、排除不需要打进构建上下文的文件 / 文件夹，实现两个核心好处：
+1. 缩小上传包体积，加快构建速度。避免无关文件（缓存、本地配置、Git 文件）被意外 COPY 进镜像。
+2. 它只影响构建上下文，不影响基础镜像内部文件。
+
+** 存放位置 **
+和 Dockerfile 放在同一个上下文根目录，文件名固定：.dockerignore（开头带点，无后缀）
+
+
+** 常用模版 **
+```bash
+# Git 相关
+.git
+.gitignore
+.gitlab-ci.yml
+.github/
+
+# 本地缓存、依赖
+node_modules/
+venv/
+__pycache__/
+*.pyc
+target/
+build/
+dist/
+
+# 日志、临时文件
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# 本地环境配置（避免把本地密钥打进镜像）
+.env
+.env.local
+.env.dev
+docker-compose.yml
+docker-compose.*.yml
+
+# IDE 配置
+.idea/
+.vscode/
+*.sublime-*
+
+# 打包产物（构建时会在镜像内重新生成，不需要本地的）
+*.tar
+*.zip
+```
+
 ### 使用镜像生成容器
 容器启动命令：
 ```bash
