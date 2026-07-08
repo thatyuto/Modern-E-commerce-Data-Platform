@@ -198,6 +198,15 @@ CMD ["python", "app.py"]
     docker build -t 镜像名称:镜像版本 . # 镜像名称：可选，默认为当前目录名
 ```
 
+docker build 的核心作用：根据 Dockerfile + 上下文（build context）逐层生成镜像（Image），全程做分层缓存、文件拷贝、执行命令、配置运行参数。末尾的 . 就是构建上下文目录，docker build 会把这个目录下所有文件打包发给 Docker 守护进程（dockerd）。
+** docker build 有个限制 ** ：不能直接读取宿主机任意文件。Docker 的构建进程（dockerd）是独立后台服务，和你的终端隔离。为了安全，它不允许 Dockerfile 随便读取宿主机上别处的文件，只能读取「上下文文件夹」里的内容。
+
+** 执行 build 时流程： **
+1. docker 客户端扫描宿主机上下文目录（. 对应的文件夹）；
+2. 自动打包目录内所有文件（排除 .dockerignore 匹配的）；
+3. 把压缩包传给后台 dockerd；
+4. Dockerfile 里的 COPY/ADD 只能从这份打包文件里拿文件。
+
 ### 使用镜像生成容器
 容器启动命令：
 ```bash
