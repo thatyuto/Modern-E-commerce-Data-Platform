@@ -1,0 +1,21 @@
+# 彻底阻断本地 Python 虚拟环境，容器内会通过 requirements.txt 重新安装
+venv/
+.venv/
+env/
+
+# 屏蔽 Python 运行产生的字节码缓存垃圾，防止污染容器文件系统
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 屏蔽本地的 Git 历史与 VS Code 配置，保持镜像纯净
+.git/
+.gitignore
+.vscode/
+
+# 屏蔽大体量的电商原始数据资产和 Checkpoint（本地测试用的，绝不能带上生产环境）
+*.parquet
+*.csv
+*.json
+checkpoint/
