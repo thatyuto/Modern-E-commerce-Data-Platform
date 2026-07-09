@@ -1,0 +1,59 @@
+# Olist 多表流式管道 - 生产级参数控制中心
+
+global_settings:
+  schema: "python_etl"
+  if_exists: "replace" # 这里的replace策略是全局的，如果个别表想单独修改策略，可以在自己的模块中设置修改
+
+
+# 对应八张表的配置
+tables:
+  # 注意：这里的表名是我们在数据仓库中创建的表名，而不是原始 CSV 文件名，然后关键字如,csv_name这些也是我们自定义的，只要后续文件能对上即可
+  orders:
+    csv_name: "olist_orders_dataset.csv"
+    target_table: "fact_orders"
+    expected_cols: ['order_id', 'customer_id', 'order_status', 'order_purchase_timestamp']
+    critical_cols: ['order_id', 'customer_id']
+  
+  order_items:
+    csv_name: "olist_order_items_datset.csv"
+    target_table: "fact_order_items"
+    expected_cols: ['order_id', 'order_item_id', 'product_id', 'price']
+    critical_cols: ['order_id', 'order_item_id', 'product_id']
+
+  customers:
+    csv_name: "olist_customers_dataset.csv"
+    target_table: "dim_customers"
+    expected_cols: ['customer_id', 'customer_unique_id', 'customer_city']
+    critical_cols: ['customer_id', 'customer_unique_id']
+
+  order_payments:
+    csv_name: "olist_order_payments_dataset.csv"
+    target_table: "fact_order_payments"
+    expected_cols: ['order_id', 'payment_type', 'payment_value']
+    critical_cols: ['order_id', 'payment_type']
+  
+  products:
+    csv_name: "olist_products_dataset.csv"
+    target_table: "dim_products"
+    expected_cols: ['product_id', 'product_category_name']
+    critical_cols: ['product_id']
+
+  sellers:
+    csv_name: "olist_sellers_dataset.csv"
+    target_table: "dim_sellers"
+    expected_cols: ['seller_id', 'seller_city', 'seller_zip_code_prefix']
+    critical_cols: ['seller_id']
+
+  geolocation:
+    csv_name: "olist_geolocation_dataset.csv"
+    target_table: "dim_geolocation"
+    expected_cols: ['geolocation_zip_code_prefix', 'geolocation_lat', 'geolocation_lng']
+    critical_cols: ['geolocation_zip_code_prefix']
+  
+  order_reviews:
+    csv_name: "olist_order_reviews_dataset.csv"
+    target_table: "fact_order_reviews"
+    expected_cols: ['review_id', 'order_id', 'review_score']
+    critical_cols: ['review_id', 'order_id']
+
+  
