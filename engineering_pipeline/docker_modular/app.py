@@ -8,6 +8,7 @@ def main():
     BASE_DIR = Path(__file__).resolve().parent
     RAW_DATA_DIR = BASE_DIR / "raw_data"
     CONFIG_PATH = BASE_DIR / "config.yaml"
+    DB_PATH = BASE_DIR / "olist_warehouse.db"
 
     print("_________ETL Pipeline Started_______")
 
@@ -16,7 +17,11 @@ def main():
         config = yaml.safe_load(f)
     
     # step 2:
-    pipeline_engine = UniversalETLPipeline(global_config=config, data_dir=RAW_DATA_DIR)
+    pipeline_engine = UniversalETLPipeline(
+        global_config=config, 
+        data_dir=RAW_DATA_DIR,
+        db_path=DB_PATH
+    )
 
     # step 3:
     for table_key, table_config in config['tables'].items():
@@ -26,4 +31,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
