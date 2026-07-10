@@ -1,5 +1,5 @@
 # Olist 多表流式管道 - 生产级参数控制中心
-
+#
 global_settings:
   schema: "python_etl"
   if_exists: "replace" # 这里的replace策略是全局的，如果个别表想单独修改策略，可以在自己的模块中设置修改
