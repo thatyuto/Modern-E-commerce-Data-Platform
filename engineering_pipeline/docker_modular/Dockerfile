@@ -20,7 +20,7 @@ COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
 # 💥 全量压入初学者实验文件夹下的核心代码与资产配置
-COPY raw_data/ /app/raw_data/
+# COPY raw_data/ /app/raw_data/    把这行删去，采用解耦的数据目录方式挂载
 COPY config.yaml /app/
 COPY pipeline.py /app/
 COPY app.py /app/

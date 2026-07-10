@@ -15,7 +15,7 @@ tables:
     critical_cols: ['order_id', 'customer_id']
   
   order_items:
-    csv_name: "olist_order_items_datset.csv"
+    csv_name: "olist_order_items_dataset.csv"
     target_table: "fact_order_items"
     expected_cols: ['order_id', 'order_item_id', 'product_id', 'price']
     critical_cols: ['order_id', 'order_item_id', 'product_id']
