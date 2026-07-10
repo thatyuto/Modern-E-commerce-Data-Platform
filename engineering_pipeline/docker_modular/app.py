@@ -1,15 +1,29 @@
-import sys
-import time
+import yaml
+import os
+from pathlib import Path
+from pipeline import UniversalETLPipeline
 
-print("🛰️ [Yuto Pipeline] 容器化基础测试镜像通电成功！")
-print(f"🐍 当前容器内部运行的 Python 物理版本为: {sys.version}")
+def main():
+    # 动态锁定容器或本地的当前工作路径
+    BASE_DIR = Path(__file__).resolve().parent
+    RAW_DATA_DIR = BASE_DIR / "raw_data"
+    CONFIG_PATH = BASE_DIR / "config.yaml"
 
-# 模拟高频电商流式对账的无尽循环
-try:
-    for i in range(1, 500):
-        print(f" [Yuto Pipeline] 正在进行第 {i} 次流式对账操作...")
-        time.sleep(1)  # 模拟处理时间
-    print("[Yuto Pipeline] 流式对账操作完成！")
-except KeyboardInterrupt:
-    print("[Yuto Pipeline] 流式对账操作被用户中断。")
+    print("_________ETL Pipeline Started_______")
 
+    # step 1:
+    with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+    
+    # step 2:
+    pipeline_engine = UniversalETLPipeline(global_config=config, data_dir=RAW_DATA_DIR)
+
+    # step 3:
+    for table_key, table_config in config['tables'].items():
+        pipeline_engine.execute_table_job(table_key, table_config)
+
+    print("_________ETL Pipeline Finished_______")
+
+if __name__ == "__main__":
+    main()
+    
