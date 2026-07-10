@@ -11,9 +11,10 @@ class UniversalETLPipeline:
     不写死任何一张表的名字，而是动态读取外部YAML/Dict配置
     """
 
-    def __init__(self, global_config: dict, data_dir: Path):
+    def __init__(self, global_config: dict, data_dir: Path, db_path: Path):
         self.global_settings = global_config['global_settings']
         self.data_dir = data_dir
+        self.db_path = db_path
 
     def extract(self, csv_name: str) -> pd.DataFrame:
         """
@@ -52,11 +53,15 @@ class UniversalETLPipeline:
         """
         Load data into a target table.
         """
-        print(f"Loading data into table {target_table}")
-        
-        schema = self.global_settings['schema']
-        if_exits = self.global_settings['if_exists']
-        print(f" loading finshed")
+        if_exists = self.global_settings['if_exists']
+
+        conn = sqlite3.connect(str(self.db_path))
+        try:
+            # 使用pandas的to_sql方法将DataFrame写入SQLite数据库
+            df.to_sql(target_table, conn, if_exists=if_exists, index=False  )
+            print(f"Successfully loaded data into {target_table}")
+        finally:
+            conn.close()
 
     def execute_table_job(self, table_key: str, table_config: dict):
         try:
