@@ -1,0 +1,78 @@
+version: '3.8'
+services:
+  # 1. Airflow 数据库 PostgreSQL
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - TZ=Asia/Shanghai  # 统一时区
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # 2. Airflow Web 控制台服务
+  airflow-webserver:
+    image: apache/airflow:2.7.2-python3.10
+    depends_on:
+      - postgres
+    environment:
+      - TZ=Asia/Shanghai
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__PARALLELISM=16  # 任务并发上限
+      - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins  # 补充插件目录
+    command: webserver
+    restart: always
+
+  # 3. Airflow 调度器（拆分独立进程，稳定可靠）
+  airflow-scheduler:
+    image: apache/airflow:2.7.2-python3.10
+    depends_on:
+      - postgres
+    environment:
+      - TZ=Asia/Shanghai
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__PARALLELISM=16
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    command: scheduler
+    restart: always
+
+  # 一次性初始化容器：仅执行一次DB迁移+创建管理员，执行完自动销毁
+  airflow-init:
+    image: apache/airflow:2.7.2-python3.10
+    depends_on:
+      - postgres
+    environment:
+      - TZ=Asia/Shanghai
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - _AIRFLOW_DB_UPGRADE=true
+      - _AIRFLOW_WWW_USER_CREATE=true
+      - _AIRFLOW_WWW_USER_USERNAME=admin
+      - _AIRFLOW_WWW_USER_PASSWORD=admin
+      - _AIRFLOW_WWW_USER_FIRSTNAME=Yuto
+      - _AIRFLOW_WWW_USER_LASTNAME=Wong
+      - _AIRFLOW_WWW_USER_EMAIL=yuto@example.com
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./plugins:/opt/airflow/plugins
+    command: version  # 触发官方内置初始化脚本
+    restart: "no"
+
+volumes:
+  postgres_data:
