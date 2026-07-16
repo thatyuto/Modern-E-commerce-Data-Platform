@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  # 1. Airflow 数据库 PostgreSQL
+  # 1. Airflow 数据库 PostgreSQL (只负责存数据，不再塞邮件噪音)
   postgres:
     image: postgres:13
     environment:
@@ -14,38 +14,58 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
-  # 2. Airflow Web 控制台服务
+  # 2. Airflow Web 控制台服务 (负责渲染大盘，需要邮件配置以支持前端测试手动发信)
   airflow-webserver:
     image: apache/airflow:2.7.2-python3.10
     depends_on:
       - postgres
+    env_file:
+      - .env  # 👈 物理定位：自动读取父级 a 目录下的 .env 文件
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=Asia/Shanghai  # 统一时区
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__PARALLELISM=16  # 任务并发上限
+      - AIRFLOW__CORE__PARALLELISM=16  
       - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+      # 🔒 邮件安全告警发射机物理配置 (动态提取父级 .env 数据)
+      - AIRFLOW__SMTP__SMTP_HOST=smtp.qq.com              
+      - AIRFLOW__SMTP__SMTP_STARTTLS=True
+      - AIRFLOW__SMTP__SMTP_SSL=False
+      - AIRFLOW__SMTP__SMTP_PORT=587                      
+      - AIRFLOW__SMTP__SMTP_USER=${EMAIL_USER}         
+      - AIRFLOW__SMTP__SMTP_PASSWORD=${EMAIL_PASSWORD}   
+      - AIRFLOW__SMTP__SMTP_MAIL_FROM=${EMAIL_USER}    
     ports:
       - "8080:8080"
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins  # 补充插件目录
+      - ./plugins:/opt/airflow/plugins  
     command: webserver
     restart: always
 
-  # 3. Airflow 调度器（拆分独立进程，稳定可靠）
+  # 3. Airflow 调度器 (核心！真正跑代码发邮件的苦力，必须配上发信参数)
   airflow-scheduler:
     image: apache/airflow:2.7.2-python3.10
     depends_on:
       - postgres
+    env_file:
+      - .env  # 👈 物理定位：自动读取父级 a 目录下的 .env 文件
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=Asia/Shanghai  # 统一时区
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__CORE__PARALLELISM=16
+      # 🔒 邮件安全告警发射机物理配置 (动态提取父级 .env 数据，Scheduler 必须拥有它！)
+      - AIRFLOW__SMTP__SMTP_HOST=smtp.qq.com              
+      - AIRFLOW__SMTP__SMTP_STARTTLS=True
+      - AIRFLOW__SMTP__SMTP_SSL=False
+      - AIRFLOW__SMTP__SMTP_PORT=587                      
+      - AIRFLOW__SMTP__SMTP_USER=${EMAIL_USER}         
+      - AIRFLOW__SMTP__SMTP_PASSWORD=${EMAIL_PASSWORD}   
+      - AIRFLOW__SMTP__SMTP_MAIL_FROM=${EMAIL_USER}    
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -53,13 +73,13 @@ services:
     command: scheduler
     restart: always
 
-  # 一次性初始化容器：仅执行一次DB迁移+创建管理员，执行完自动销毁
+  # 一次性初始化容器
   airflow-init:
     image: apache/airflow:2.7.2-python3.10
     depends_on:
       - postgres
     environment:
-      - TZ=Asia/Shanghai
+      - TZ=Asia/Shanghai  # 统一时区
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - _AIRFLOW_DB_UPGRADE=true
       - _AIRFLOW_WWW_USER_CREATE=true
@@ -71,7 +91,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
-    command: version  # 触发官方内置初始化脚本
+    command: version  
     restart: "no"
 
 volumes:
