@@ -1,34 +1,33 @@
 version: '3.8'
 services:
-  # 1. Airflow 数据库 PostgreSQL (只负责存数据，不再塞邮件噪音)
   postgres:
     image: postgres:13
     environment:
       - POSTGRES_USER=airflow
       - POSTGRES_PASSWORD=airflow
       - POSTGRES_DB=airflow
-      - TZ=Asia/Shanghai  # 统一时区
+      - TZ=Asia/Shanghai
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
 
-  # 2. Airflow Web 控制台服务 (负责渲染大盘，需要邮件配置以支持前端测试手动发信)
   airflow-webserver:
     image: apache/airflow:2.7.2-python3.10
     depends_on:
       - postgres
     env_file:
-      - .env  # 👈 物理定位：自动读取父级 a 目录下的 .env 文件
+      - .env  
     environment:
-      - TZ=Asia/Shanghai  # 统一时区
+      - TZ=Asia/Shanghai  
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__CORE__PARALLELISM=16  
       - AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
-      # 🔒 邮件安全告警发射机物理配置 (动态提取父级 .env 数据)
+      # 🎯 修正点 1：锁死黄金组合版本，防止下载到引发 Expected 96 错误的 numpy 2.x 和新版 pandas
+      - _PIP_ADDITIONAL_REQUIREMENTS=numpy==1.23.5 pandas==1.5.3 dbt-bigquery==1.5.0
       - AIRFLOW__SMTP__SMTP_HOST=smtp.qq.com              
       - AIRFLOW__SMTP__SMTP_STARTTLS=True
       - AIRFLOW__SMTP__SMTP_SSL=False
@@ -42,23 +41,27 @@ services:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins  
+      # 📂 虫洞 1：挂载 dbt 施工图纸目录
+      - ../../../Modern-E-commerce-Data-Platform/dbt:/opt/airflow/dbt
+      # 🔒 虫洞 2：直接挂载躺在大项目根目录下的那把物理钥匙，送到容器内的 /opt/airflow/profiles/ 目录下
+      - ../../../Modern-E-commerce-Data-Platform/profiles.yml:/opt/airflow/profiles/profiles.yml
     command: webserver
     restart: always
 
-  # 3. Airflow 调度器 (核心！真正跑代码发邮件的苦力，必须配上发信参数)
   airflow-scheduler:
     image: apache/airflow:2.7.2-python3.10
     depends_on:
       - postgres
     env_file:
-      - .env  # 👈 物理定位：自动读取父级 a 目录下的 .env 文件
+      - .env  
     environment:
-      - TZ=Asia/Shanghai  # 统一时区
+      - TZ=Asia/Shanghai  
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__CORE__PARALLELISM=16
-      # 🔒 邮件安全告警发射机物理配置 (动态提取父级 .env 数据，Scheduler 必须拥有它！)
+      # 🎯 修正点 2：必须与 webserver 严格保持一致，防止调度器在执行任务时因为没有指定而使用不同的隐式版本
+      - _PIP_ADDITIONAL_REQUIREMENTS=numpy==1.23.5 pandas==1.5.3 dbt-bigquery==1.5.0
       - AIRFLOW__SMTP__SMTP_HOST=smtp.qq.com              
       - AIRFLOW__SMTP__SMTP_STARTTLS=True
       - AIRFLOW__SMTP__SMTP_SSL=False
@@ -70,16 +73,19 @@ services:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      # 📂 虫洞 1：挂载 dbt 施工图纸目录
+      - ../../../Modern-E-commerce-Data-Platform/dbt:/opt/airflow/dbt
+      # 🔒 虫洞 2：保证车间调度器同样能拿到大项目根目录下的这把钥匙
+      - ../../../Modern-E-commerce-Data-Platform/profiles.yml:/opt/airflow/profiles/profiles.yml
     command: scheduler
     restart: always
 
-  # 一次性初始化容器
   airflow-init:
     image: apache/airflow:2.7.2-python3.10
     depends_on:
       - postgres
     environment:
-      - TZ=Asia/Shanghai  # 统一时区
+      - TZ=Asia/Shanghai  
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - _AIRFLOW_DB_UPGRADE=true
       - _AIRFLOW_WWW_USER_CREATE=true
