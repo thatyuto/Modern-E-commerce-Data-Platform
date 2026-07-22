@@ -18,13 +18,24 @@ with customer_stats as (
     on o.customer_id = c.customer_id
     group by 1
 ),
+-- 网页dbt可以运行,但由于airflow版本问题，因此做出修改，改成下面版本
+-- active_customers as (
+--     select distinct c.customer_unique_id,
+--     from {{ ref('fact_orders') }} o
+--     left join {{ ref('stg_customers') }} c on o.customer_id = c.customer_id
+--     {% if is_incremental() %}
+--       -- 如果是增量运行，只看过去 7 天更新过的订单
+--       where o.updated_at >= (select timestamp_sub(max(updated_at), interval 7 day) from {{ this }})
+--     {% endif %}    
+-- ),
+
 active_customers as (
     select distinct c.customer_unique_id,
     from {{ ref('fact_orders') }} o
     left join {{ ref('stg_customers') }} c on o.customer_id = c.customer_id
     {% if is_incremental() %}
-      -- 如果是增量运行，只看过去 7 天更新过的订单
-      where o.updated_at >= (select timestamp_sub(max(updated_at), interval 7 day) from {{ this }})
+      -- 🎯 用 fact_orders 确定存在的 purchased_at，去对比目标表客户维度的已更新水位
+      where o.purchased_at >= (select timestamp_sub(max(updated_at), interval 7 day) from {{ this }})
     {% endif %}    
 ),
 rfm_metrics as (

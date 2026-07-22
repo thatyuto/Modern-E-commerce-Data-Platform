@@ -23,15 +23,23 @@ models:
         tests:
           - unique
           - not_null
+      # 注意：这个为本地运行的版本，因为版本比较新，所以必须用argument关键字，而如果用airflow，我们采用的dbt版本比较低，所以不用argument关键字，如下：
+      # - name: customer_id
+      #   description: "the forieginer key"
+      #   tests:
+      #     - not_null
+      #     - relationships:
+      #         arguments:
+      #           to: ref('stg_customers')
+      #           field: customer_id   
 
       - name: customer_id
         description: "the forieginer key"
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('stg_customers')
-                field: customer_id    
+              to: ref('stg_customers')
+              field: customer_id   
 
   # customers 表
   - name: stg_customers

@@ -226,3 +226,7 @@ dbt_internal_packages/
 *.sqlite3
 *.db-journal
 *.wal
+
+# 忽略Json
+*.json
+*.yml

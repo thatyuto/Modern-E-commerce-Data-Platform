@@ -66,14 +66,26 @@
 
 ---
 
-## 三、表之间的关联关系
-- **order_id** 连接：
-  orders ↔ order_items ↔ order_payments ↔ order_reviews
-- **customer_id** 连接：
-  orders ↔ customers
-- **product_id** 连接：
-  order_items ↔ products
-- **seller_id** 连接：
-  order_items ↔ sellers
+## 
+
+### Stage 1: Spark 抽取与清洗（Spark Extraction & Cleaning）
+
+从 BigQuery 的原始表（如 olist_orders_dataset, olist_order_payments_dataset）中读取真实数据。
+
+用 Spark 进行数据清洗：过滤空值、清洗时间戳、处理异常金额，写入 stg_orders_raw。
+
+### Stage 2: dbt 仓内建模（dbt Modeling）
+
+运行 dbt 模型，生成 dim_customers（RFM 分群）、fact_orders 等指标表。
+
+### Stage 3: Spark/Python 数据分析与图表生成（Analysis & Chart Generation）
+
+读取 dbt 产出的 dim_customers 和 fact_orders。
+
+进行 RFM 客户分群聚合分析，利用 matplotlib/seaborn 自动生成分析图表（保存为图像文件），并将分析结果汇总表（rfm_summary_results）存回 BigQuery。
+
+### Stage 4: 数据质量断言与测试（dbt Test）
+
+确保最终数据落盘合规。
 
 
