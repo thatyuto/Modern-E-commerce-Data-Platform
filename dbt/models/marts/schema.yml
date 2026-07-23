@@ -190,3 +190,50 @@ models:
         tests:
           - not_null
 
+  # --- Analytics Marts (沉淀自 olist_analysis/ 探索分析) ---
+
+  - name: mart_daily_gmv_trend
+    description: "日 GMV / 订单量趋势，含日环比、周环比及 30 天滑动异常检测。"
+    columns:
+      - name: order_date
+        tests: [unique, not_null]
+      - name: anomaly_status
+        tests:
+          - accepted_values:
+              values: ['CRITICAL', 'WARNING', 'NORMAL']
+
+  - name: mart_logistics_timeliness
+    description: "订单级物流时效宽表，含各节点耗时（小时）与时效分级。"
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: timely_level
+        tests:
+          - accepted_values:
+              values: ['极快', '较快', '一般', '较慢']
+
+  - name: mart_user_behavior
+    description: "用户行为画像：首单/末单、消费、复购间隔、生命周期标签。"
+    columns:
+      - name: customer_unique_id
+        tests: [unique, not_null]
+      - name: user_tag
+        tests:
+          - accepted_values:
+              values: ['新客', '复购', '沉睡', '流失', '其他']
+
+  - name: mart_customer_kpi
+    description: "平台级客户 KPI 快照：复购率、忠诚客户占比。"
+    columns:
+      - name: snapshot_date
+        tests: [not_null]
+      - name: repurchase_rate_pct
+        tests:
+          - not_null
+
+  - name: mart_city_sales_rank
+    description: "城市维度订单量与 GMV 排名，支持区域分析。"
+    columns:
+      - name: city
+        tests: [not_null]
+
